@@ -1,0 +1,151 @@
+# consulta-cnpj
+Código para integrar API RECEITA WS - possibilita indicar as IDs CSS dos campos de um formulário no wordpress e exibir dados extraídos da consulta ao CNPJ informado.
+
+Uma video aula explica como funciona: https://www.youtube.com/watch?v=PeGrqIMy31c
+créditos: DANTE TESTA
+
+Segue o código:
+
+<script>
+/* SETUP DOS IDS DO FORM
+ * 
+ * Insira os ID's CSS de acordo com os campos do seu formulário.
+ *  OBS.: o exemplo preenchido é o que ocorre no ID do elementor, ele é concatenado com "form-field-IDdoCAMPO"
+ *  */	
+	
+var cnpj='#form-field-cnpj';
+var situacao='#form-field-situacao';
+var natureza='#form-field-natureza';
+var capital='#form-field-capital';	
+	
+var nome='#form-field-nome';
+var fantasia='#form-field-fantasia';
+var telefone='#form-field-telefone';
+var email='#form-field-email';	
+	
+var abertura='#form-field-abertura';
+var porte='#form-field-porte';
+var atividade='#form-field-atividade';
+var cnae='#form-field-cnae';
+
+var cep='#form-field-cep';	
+var rua='#form-field-rua';
+var numero='#form-field-numero';
+var complemento='#form-field-complemento';
+var bairro='#form-field-bairro';
+var cidade='#form-field-cidade';
+var uf='#form-field-uf';
+
+
+
+
+//-------------------------------------------			
+			
+/* CODIGO BRUTO */			
+var $jq = jQuery.noConflict();
+$jq(document).ready(function() {
+
+function limpa_formulario() {
+// Limpa valores do formulário.
+$jq(cnpj).val('');
+$jq(situacao).val('');
+$jq(natureza).val('');
+$jq(capital).val('');
+$jq(nome).val('');
+$jq(fantasia).val('');	
+$jq(telefone).val('');
+$jq(email).val('');
+$jq(abertura).val('');
+$jq(porte).val('');
+$jq(atividade).val('');
+$jq(cnae).val('');	
+$jq(cep).val('');
+$jq(rua).val('');
+$jq(numero).val('');
+$jq(complemento).val('');
+$jq(bairro).val('');
+$jq(cidade).val('');
+$jq(uf).val('');
+}
+            
+//Quando o campo CNPJ perde o foco.
+$jq(cnpj).blur(function() {
+//Nova variável "CNPJ" somente com dígitos.
+var cnpj_consultado = $jq(this).val().replace(/\D/g, '');
+
+//Verifica se campo CNPJ possui valor informado.
+if (cnpj_consultado !='') {
+//Expressão regular para validar o CNPJ.
+var validacnpj = /^[0-9]{14}$/;
+//Valida o formato do CNPJ.
+if(validacnpj.test(cnpj_consultado)) {
+//Preenche os campos com "..." enquanto consulta webservice.
+$jq(cnpj).val('...');
+$jq(situacao).val('...');
+$jq(natureza).val('...');
+$jq(capital).val('...');
+$jq(nome).val('...');
+$jq(fantasia).val('...');	
+$jq(telefone).val('...');
+$jq(email).val('...');
+$jq(abertura).val('...');
+$jq(porte).val('...');
+$jq(atividade).val('...');
+$jq(cnae).val('...');	
+$jq(cep).val('...');
+$jq(rua).val('...');
+$jq(numero).val('...');
+$jq(complemento).val('...');
+$jq(bairro).val('...');
+$jq(cidade).val('...');
+$jq(uf).val('...');
+
+
+//Consulta o webservice receitaws.com.br/
+$jq.getJSON('https://www.receitaws.com.br/v1/cnpj/'+ cnpj_consultado +'/?callback=?', function(dados) {
+if (!('erro' in dados)) {
+//Atualiza os campos com os valores da consulta.
+
+$jq(cnpj).val(dados.cnpj);
+$jq(situacao).val(dados.situacao);
+$jq(natureza).val(dados.natureza_juridica);
+$jq(capital).val('R$' + parseInt(dados.capital_social).toLocaleString());
+$jq(nome).val(dados.nome);
+$jq(fantasia).val(dados.fantasia);	
+$jq(telefone).val(dados.telefone);
+$jq(email).val(dados.email);
+$jq(abertura).val(dados.abertura);	
+$jq(porte).val(dados.porte);
+$jq(atividade).val(dados.atividade_principal[0].text);
+$jq(cnae).val(dados.atividade_principal[0].code);	
+$jq(cep).val(dados.cep);
+$jq(rua).val(dados.logradouro);
+$jq(numero).val(dados.numero);	
+$jq(complemento).val(dados.complemento);	
+$jq(bairro).val(dados.bairro);
+$jq(cidade).val(dados.municipio);
+$jq(uf).val(dados.uf);
+	
+} //end if.
+else {
+//CNPJ pesquisado não foi encontrado.
+limpa_formulario();
+alert('CNPJ não encontrado.');
+}
+});
+} //end if.
+else {
+//CNPJ é inválido.
+limpa_formulario();
+alert('Formato de CNPJ inválido.');
+}
+} //end if.
+else {
+//CNPJ sem valor, limpa formulário.
+limpa_formulario();
+}
+});
+});
+</script>
+
+
